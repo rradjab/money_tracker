@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/models/spend_model.dart';
+import 'package:money_tracker/models/plan_model.dart';
 import 'package:money_tracker/providers/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final firebaseSpends = StreamProvider.autoDispose
-    .family<List<SpendModel>, String>((ref, categoryId) {
+final firebasePlans = StreamProvider.autoDispose<List<PlanModel>>((ref) {
   final user = ref.watch(authStreamProvider).value;
   final eDate = ref.watch(exploreDateProvider);
   final dateType = ref.watch(datePickerProvider);
@@ -13,9 +12,7 @@ final firebaseSpends = StreamProvider.autoDispose
       FirebaseFirestore.instance
           .collection('users')
           .doc(user!.uid)
-          .collection("categories")
-          .doc(categoryId)
-          .collection("spends");
+          .collection("plans");
 
   Query<Map<String, dynamic>> query = collectionReference;
 
@@ -43,6 +40,6 @@ final firebaseSpends = StreamProvider.autoDispose
       query.orderBy('added', descending: true).snapshots();
 
   return stream.map((snapshot) => snapshot.docs.map((doc) {
-        return SpendModel.fromJson(doc.id, doc.data());
+        return PlanModel.fromJson(doc.id, doc.data());
       }).toList());
 });

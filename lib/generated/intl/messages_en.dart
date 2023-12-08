@@ -20,7 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(date) => "There are no expenses for ${date}";
+  static String m0(date) => "There are no expenses for specified ${date}";
 
   static String m1(total) => "Total ${total}";
 
@@ -42,6 +42,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "authTitle": MessageLookupByLibrary.simpleMessage("Cost accounting"),
         "confirmDelete": MessageLookupByLibrary.simpleMessage("Confirm action"),
         "dateFormat": MessageLookupByLibrary.simpleMessage("dd/MM/yyyy"),
+        "dateItems": MessageLookupByLibrary.simpleMessage("Day|Month|Year|All"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "dialogAdd": MessageLookupByLibrary.simpleMessage("Add"),
         "dialogAddCategory":
@@ -79,6 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Wrong password"),
         "homePlans": MessageLookupByLibrary.simpleMessage("Plans"),
         "homeProfile": MessageLookupByLibrary.simpleMessage("Profile"),
+        "homeProfits": MessageLookupByLibrary.simpleMessage("Доходы"),
         "homeSpends": MessageLookupByLibrary.simpleMessage("Expenses"),
         "language": MessageLookupByLibrary.simpleMessage("Language"),
         "languageList": MessageLookupByLibrary.simpleMessage(

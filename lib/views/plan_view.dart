@@ -1,19 +1,19 @@
+import 'dart:math';
+
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:money_tracker/generated/l10n.dart';
 import 'package:money_tracker/models/chart_model.dart';
 import 'package:money_tracker/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/views/spending_view.dart';
+import 'package:money_tracker/services/plans_service.dart';
 import 'package:money_tracker/dialogs/confirm_dialog.dart';
-import 'package:money_tracker/dialogs/add_spend_dialog.dart';
-import 'package:money_tracker/dialogs/add_category_dialog.dart';
-import 'package:money_tracker/services/categories_service.dart';
-import 'package:money_tracker/widgets/circular_chart_widget.dart';
+import 'package:money_tracker/dialogs/add_plan_dialog.dart';
 import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
+import 'package:money_tracker/widgets/circular_chart_widget.dart';
 
-class CategoryWidget extends ConsumerWidget {
-  const CategoryWidget({super.key});
+class PlanWidget extends ConsumerWidget {
+  const PlanWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,7 +89,7 @@ class CategoryWidget extends ConsumerWidget {
             ),
             Expanded(
               child: IconButton(
-                onPressed: () => showCategoryAddDialog(context),
+                onPressed: () => showPlanAddDialog(context),
                 icon: const Icon(Icons.add),
                 alignment: Alignment.centerRight,
               ),
@@ -97,20 +97,22 @@ class CategoryWidget extends ConsumerWidget {
           ],
         ),
       ),
-      body: ref.watch(firebaseCategories).when(
+      body: ref.watch(firebasePlans).when(
             data: ((data) {
-              final dataSorted = data
-                ..sort((a, b) => b.total!.compareTo(a.total!));
-
               return Column(
                 children: [
                   Expanded(
                     flex: 2,
                     child: CircularChartWidget(
-                      data: dataSorted
-                          .where((e) => (e.total != null && e.total! > 0))
-                          .map((e) => ChartModel(e.name ?? 'unnamed',
-                              e.total ?? 0, e.color ?? 'ffffff'))
+                      data: data
+                          .where((e) => (e.cost != null && e.cost! > 0))
+                          .map((e) => ChartModel(
+                              e.name ?? 'unnamed',
+                              e.cost ?? 0,
+                              Color(Random().nextInt(0xffffffff))
+                                  .withAlpha(0xff)
+                                  .toString()
+                                  .substring(8, 16)))
                           .toList(),
                       date: expDate,
                     ),
@@ -120,7 +122,7 @@ class CategoryWidget extends ConsumerWidget {
                     child: Container(
                       color: Colors.white,
                       child: ListView.builder(
-                        itemCount: dataSorted.length,
+                        itemCount: data.length,
                         itemBuilder: (context, index) => Card(
                           margin: const EdgeInsets.all(20),
                           elevation: 10,
@@ -131,16 +133,14 @@ class CategoryWidget extends ConsumerWidget {
                             onLongPress: () async {
                               if (await confirmDismiss(context)) {
                                 ref
-                                    .read(firebaseSpendsControl.notifier)
-                                    .deleteCategory(dataSorted[index].id!);
+                                    .read(firebasePlansControl.notifier)
+                                    .deletePlan(data[index].id!);
                               }
                             },
-                            onTap: () => showSpendAddDialog(
-                                context, dataSorted[index].id!),
                             title: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
-                                dataSorted[index].name!,
+                                data[index].name!,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -149,33 +149,23 @@ class CategoryWidget extends ConsumerWidget {
                             subtitle: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
-                                dataSorted[index].total! <= 0
-                                    ? S.of(context).addSpend
-                                    : S.of(context).totalSpendsN(
-                                        dataSorted[index]
-                                                .total
-                                                ?.toStringAsFixed(1) ??
-                                            '0'),
+                                data[index].added == null
+                                    ? '00 00 0000 / 00:00'
+                                    : DateFormat(S.of(context).spendsDateFormat)
+                                        .format(data[index].added!.toDate()),
                                 style: const TextStyle(
                                   fontSize: 12.0,
                                   color: Colors.grey,
                                 ),
                               ),
                             ),
-                            trailing: InkWell(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SpendingItemView(
-                                    spendingModel: dataSorted[index],
-                                  ),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.chevron_right,
-                                size: 45.0,
-                                color: Color(
-                                  int.parse('0x${dataSorted[index].color!}'),
+                            trailing: Padding(
+                              padding: const EdgeInsets.only(left: 18.0),
+                              child: Text(
+                                data[index].cost?.toStringAsFixed(1) ?? '0',
+                                style: const TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),

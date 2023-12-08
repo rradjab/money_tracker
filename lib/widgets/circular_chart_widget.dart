@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:money_tracker/generated/l10n.dart';
-import 'package:money_tracker/models/category_model.dart';
+import 'package:money_tracker/models/chart_model.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:money_tracker/providers/providers.dart';
 
-class CircularChartWidget extends StatelessWidget {
+class CircularChartWidget extends ConsumerWidget {
   final DateTime date;
-  final List<CategoryModel> data;
+  final List<ChartModel> data;
   const CircularChartWidget(
       {super.key, required this.date, required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dateType = ref.watch(datePickerProvider);
+
     return Container(
       color: Colors.grey[200],
       child: data.isEmpty
           ? Center(
-              child: Text(S.of(context).spendingNotExists(
-                  DateFormat.MMMM().format(date).toString())),
+              child: Text(S.current.spendingNotExists(S.current.dateItems
+                  .split('|')[
+                      ['dd M yyyy', 'M yyyy', 'yyyy', ''].indexOf(dateType)]
+                  .toLowerCase())),
             )
           : Stack(
               children: [
@@ -26,7 +31,7 @@ class CircularChartWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       data
-                          .fold<double>(0, (sum, item) => sum + item.total!)
+                          .fold<double>(0, (sum, item) => sum + item.y)
                           .toStringAsFixed(1),
                       style: const TextStyle(
                           color: Colors.grey, fontWeight: FontWeight.bold),
@@ -34,15 +39,15 @@ class CircularChartWidget extends StatelessWidget {
                   ),
                 ),
                 SfCircularChart(
-                  series: <DoughnutSeries<CategoryModel, String>>[
-                    DoughnutSeries<CategoryModel, String>(
+                  series: <DoughnutSeries<ChartModel, String>>[
+                    DoughnutSeries<ChartModel, String>(
                       dataSource: data,
                       innerRadius: '35%',
-                      pointColorMapper: (CategoryModel data, _) =>
-                          Color(int.parse('0x${data.color ?? 'ffffff'}')),
-                      xValueMapper: (CategoryModel data, _) => data.name,
-                      yValueMapper: (CategoryModel data, _) => data.total,
-                      dataLabelMapper: (CategoryModel data, _) => data.name,
+                      pointColorMapper: (ChartModel data, _) =>
+                          Color(int.parse('0x${data.color}')),
+                      xValueMapper: (ChartModel data, _) => data.x,
+                      yValueMapper: (ChartModel data, _) => data.y,
+                      dataLabelMapper: (ChartModel data, _) => data.x,
                       dataLabelSettings: const DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(

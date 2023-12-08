@@ -45,10 +45,14 @@ class MyApp extends ConsumerWidget {
                   icon: const Icon(Icons.credit_card),
                   label: S.current.homeSpends,
                 ),
-                // BottomNavigationBarItem(
-                //   icon: const Icon(Icons.monetization_on),
-                //   label: S.current.homePlans,
-                // ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.monetization_on),
+                  label: S.current.homeProfits,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.place_outlined),
+                  label: S.current.homePlans,
+                ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.person),
                   label: S.current.homeProfile,

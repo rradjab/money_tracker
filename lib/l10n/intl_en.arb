@@ -9,7 +9,7 @@
   "authAccountExists": "Have an account? ",
   "authSignIn": "Sign in",
   "authSignUp": "Sign up",
-  "spendingNotExists": "There are no expenses for {date}",
+  "spendingNotExists": "There are no expenses for specified {date}",
   "delete": "Delete",
   "profileAppbarTitle": "Profile",
   "profileSaveText": "Save",
@@ -45,5 +45,7 @@
   "spendsDateFormat": "dd MMMM yyyy / hh:mm",
   "language": "Language",
   "homePlans": "Plans",
-  "languageList": "English|Azərbaycanca|Русский"
+  "languageList": "English|Azərbaycanca|Русский",
+  "dateItems": "Day|Month|Year|All",
+  "homeProfits": "Доходы"
 }

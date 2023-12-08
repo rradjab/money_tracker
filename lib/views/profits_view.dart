@@ -12,8 +12,8 @@ import 'package:money_tracker/services/categories_service.dart';
 import 'package:money_tracker/widgets/circular_chart_widget.dart';
 import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 
-class CategoryWidget extends ConsumerWidget {
-  const CategoryWidget({super.key});
+class ProfitWidget extends ConsumerWidget {
+  const ProfitWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/views/plan_view.dart';
 import 'package:money_tracker/views/profile_view.dart';
 import 'package:money_tracker/views/category_view.dart';
+import 'package:money_tracker/views/profits_view.dart';
 
 class HomeScreen extends StatefulWidget {
   final List<BottomNavigationBarItem> items;
@@ -46,12 +48,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         showSelectedLabels: true,
         currentIndex: _currentTabIndex,
         items: widget.items,
+        unselectedItemColor: Colors.grey,
       ),
       body: TabBarView(
         controller: _tabController,
         children: const [
           CategoryWidget(),
-          // CategoryWidget(),
+          ProfitWidget(),
+          PlanWidget(),
           ProfileWidget(),
         ],
       ),

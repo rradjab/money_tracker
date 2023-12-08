@@ -150,10 +150,10 @@ class S {
     );
   }
 
-  /// `There are no expenses for {date}`
+  /// `There are no expenses for specified {date}`
   String spendingNotExists(Object date) {
     return Intl.message(
-      'There are no expenses for $date',
+      'There are no expenses for specified $date',
       name: 'spendingNotExists',
       desc: '',
       args: [date],
@@ -515,6 +515,26 @@ class S {
     return Intl.message(
       'English|Azərbaycanca|Русский',
       name: 'languageList',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day|Month|Year|All`
+  String get dateItems {
+    return Intl.message(
+      'Day|Month|Year|All',
+      name: 'dateItems',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Доходы`
+  String get homeProfits {
+    return Intl.message(
+      'Доходы',
+      name: 'homeProfits',
       desc: '',
       args: [],
     );

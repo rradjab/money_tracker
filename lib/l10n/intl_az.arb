@@ -9,7 +9,7 @@
   "authAccountExists": "Qeydiyyatdan keçmisiniz? ",
   "authSignIn": "Daxil olun",
   "authSignUp": "Qeydiyyat",
-  "spendingNotExists": "{date} ərzində istehlak yoxdur",
+  "spendingNotExists": "Qeyd olunan {date} ərzində istehlak yoxdur",
   "delete": "Silmək",
   "profileAppbarTitle": "Profil",
   "profileSaveText": "Сохранить",
@@ -45,5 +45,7 @@
   "spendsDateFormat": "dd MMMM yyyy / kk:mm",
   "language": "Dil",
   "homePlans": "Planlar",
-  "languageList": "English|Azərbaycanca|Русский"
+  "languageList": "English|Azərbaycanca|Русский",
+  "dateItems": "Gün|Ay|İl|Hamısı",
+  "homeProfits": "Доходы"
 }
