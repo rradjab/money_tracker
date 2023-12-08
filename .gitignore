@@ -42,4 +42,13 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-firebase_options.dart
+
+# web
+web/firebase-config.js
+# lib
+lib/firebase_options.dart
+
+firebase_app_id_file.json
+GoogleService-Info.plist
+google-services.json
+github_sign.dart
