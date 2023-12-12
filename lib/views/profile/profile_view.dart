@@ -26,7 +26,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).profileAppbarTitle),
+        title: Text(S.current.profileAppbarTitle),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -81,7 +81,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          S.of(context).profileSaveText,
+                          S.current.profileSaveText,
                           style: const TextStyle(
                               fontSize: 17.0, color: Colors.purple),
                         ),
@@ -100,7 +100,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          S.of(context).language,
+                          S.current.language,
                           style: const TextStyle(fontSize: 20),
                         ),
                         Padding(
@@ -147,7 +147,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
                             onPressed: () {
                               ref.read(firebaseAuthProvider.notifier).signOut();
                             },
-                            child: Text(S.of(context).logoutButton),
+                            child: Text(S.current.logoutButton),
                           ),
                         ),
                       ],

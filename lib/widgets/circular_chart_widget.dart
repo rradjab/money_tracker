@@ -3,25 +3,25 @@ import 'package:money_tracker/generated/l10n.dart';
 import 'package:money_tracker/models/chart_model.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/providers/providers.dart';
+import 'package:money_tracker/constants/date_format.dart';
 
 class CircularChartWidget extends ConsumerWidget {
-  final DateTime date;
+  final String dateType;
   final List<ChartModel> data;
+  final double spends;
   const CircularChartWidget(
-      {super.key, required this.date, required this.data});
+      {super.key, required this.dateType, required this.data, this.spends = 0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dateType = ref.watch(datePickerProvider);
+    final total = data.fold<double>(0, (sum, item) => sum + item.y);
 
     return Container(
       color: Colors.grey[200],
       child: data.isEmpty
           ? Center(
               child: Text(S.current.spendingNotExists(S.current.dateItems
-                  .split('|')[
-                      ['dd M yyyy', 'M yyyy', 'yyyy', ''].indexOf(dateType)]
+                  .split('|')[dateFormat.indexOf(dateType)]
                   .toLowerCase())),
             )
           : Stack(
@@ -47,7 +47,8 @@ class CircularChartWidget extends ConsumerWidget {
                           Color(int.parse('0x${data.color}')),
                       xValueMapper: (ChartModel data, _) => data.x,
                       yValueMapper: (ChartModel data, _) => data.y,
-                      dataLabelMapper: (ChartModel data, _) => data.x,
+                      dataLabelMapper: (ChartModel data, _) =>
+                          data.x.isEmpty ? '_' : data.x,
                       dataLabelSettings: const DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(
@@ -59,6 +60,14 @@ class CircularChartWidget extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (spends > 0)
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      S.current.balanceSum((total - spends).toStringAsFixed(1)),
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ),
               ],
             ),
     );

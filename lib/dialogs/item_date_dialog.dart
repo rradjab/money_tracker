@@ -4,7 +4,8 @@ import 'package:money_tracker/generated/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/providers/providers.dart';
 
-Future<void> showSpendDateDialog(BuildContext context, DateTime date) async {
+Future<void> showItemDateDialog(BuildContext context,
+    [bool isPlan = false]) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -14,30 +15,24 @@ Future<void> showSpendDateDialog(BuildContext context, DateTime date) async {
         ),
         contentPadding: const EdgeInsets.all(0),
         actionsOverflowButtonSpacing: 10.0,
-        content: SpenDatedWidget(
-          date: date,
+        content: ItemDateWidget(
+          isPlan: isPlan,
         ),
       );
     },
   );
 }
 
-class SpenDatedWidget extends ConsumerStatefulWidget {
-  final DateTime date;
-  const SpenDatedWidget({super.key, required this.date});
+class ItemDateWidget extends ConsumerStatefulWidget {
+  final bool isPlan;
+  const ItemDateWidget({super.key, required this.isPlan});
 
   @override
-  ConsumerState<SpenDatedWidget> createState() => _SpenDatedWidgetState();
+  ConsumerState<ItemDateWidget> createState() => _ItemDatedWidgetState();
 }
 
-class _SpenDatedWidgetState extends ConsumerState<SpenDatedWidget> {
+class _ItemDatedWidgetState extends ConsumerState<ItemDateWidget> {
   final dateController = TextEditingController();
-
-  @override
-  void initState() {
-    dateController.text = DateFormat(S.current.dateFormat).format(widget.date);
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -47,9 +42,9 @@ class _SpenDatedWidgetState extends ConsumerState<SpenDatedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final expDate = ref.watch(exploreDateProvider);
-    final spendDate = ref.watch(spendDateProvider);
-    final spendDateRef = ref.read(spendDateProvider.notifier);
+    final dialogDate = ref.watch(dialogDateProvider);
+    final dialogDateState = ref.read(dialogDateProvider.notifier);
+    dateController.text = DateFormat(S.current.dateFormat).format(dialogDate);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -77,24 +72,34 @@ class _SpenDatedWidgetState extends ConsumerState<SpenDatedWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat.yMMMEd().format(spendDate ?? expDate),
+                      DateFormat.yMMMEd().format(dialogDate),
                       style: const TextStyle(
                           fontSize: 20.0, fontWeight: FontWeight.bold),
                     ),
                     InkWell(
                       onTap: () async {
+                        final initialDate = DateTime.now().day == dialogDate.day
+                            ? dialogDate.copyWith(day: dialogDate.day + 1)
+                            : dialogDate;
+
                         DateTime? dateTime = await showDatePicker(
                           context: context,
-                          initialDate: spendDate ?? expDate,
-                          firstDate: DateTime(1900, 12, 10),
-                          lastDate: DateTime.now(),
+                          initialDate: widget.isPlan ? initialDate : dialogDate,
+                          firstDate: widget.isPlan
+                              ? DateTime.now()
+                                  .copyWith(day: DateTime.now().day + 1)
+                              : DateTime(1900, 12, 10),
+                          lastDate: widget.isPlan
+                              ? DateTime.now()
+                                  .copyWith(year: DateTime.now().year + 100)
+                              : DateTime.now(),
                         );
                         if (dateTime != null && context.mounted) {
                           dateController.text = DateFormat(S.current.dateFormat)
                               .format(dateTime)
                               .toString();
                           ref
-                              .read(spendDateProvider.notifier)
+                              .read(dialogDateProvider.notifier)
                               .update((state) => dateTime);
                         }
                       },
@@ -117,23 +122,8 @@ class _SpenDatedWidgetState extends ConsumerState<SpenDatedWidget> {
                 decoration: InputDecoration(
                   label: Text(S.current.dialogDate),
                   labelStyle: const TextStyle(color: Colors.grey),
-                  helperText:
-                      spendDate == null ? S.current.dialogIncorrectDate : null,
                   helperStyle: const TextStyle(color: Colors.red),
                 ),
-                onChanged: (value) {
-                  DateFormat dateFormat = DateFormat(S.current.dateFormat);
-                  try {
-                    if (dateFormat.parse(value).isAfter(DateTime.now()) ||
-                        dateFormat.parse(value).isBefore(DateTime(1900))) {
-                      spendDateRef.update((state) => null);
-                    } else {
-                      spendDateRef.update((state) => dateFormat.parse(value));
-                    }
-                  } catch (e) {
-                    spendDateRef.update((state) => null);
-                  }
-                },
               ),
               const SizedBox(height: 30),
               Consumer(builder: (context, ref, child) {
@@ -146,25 +136,32 @@ class _SpenDatedWidgetState extends ConsumerState<SpenDatedWidget> {
                     DateFormat dateFormat = DateFormat(S.current.dateFormat);
 
                     try {
-                      if (dateFormat
-                              .parse(dateController.text)
-                              .isAfter(DateTime.now()) ||
-                          dateFormat
-                              .parse(dateController.text)
-                              .isBefore(DateTime(1900))) {
-                        spendDateRef.update((state) => expDate);
-                        dateController.text =
-                            DateFormat(S.current.dateFormat).format(expDate);
+                      if (widget.isPlan) {
+                        if (dateFormat
+                            .parse(dateController.text)
+                            .isAfter(DateTime.now())) {
+                          dialogDateState.update(
+                              (state) => dateFormat.parse(dateController.text));
+                          Navigator.of(context).pop();
+                        }
                       } else {
-                        spendDateRef.update(
-                            (state) => dateFormat.parse(dateController.text));
-                        Navigator.of(context).pop();
+                        if (!dateFormat
+                                .parse(dateController.text)
+                                .isAfter(DateTime.now()) &&
+                            !dateFormat
+                                .parse(dateController.text)
+                                .isBefore(DateTime(1900))) {
+                          dialogDateState.update(
+                              (state) => dateFormat.parse(dateController.text));
+                          Navigator.of(context).pop();
+                        }
                       }
                     } catch (e) {
-                      spendDateRef.update((state) => expDate);
-                      dateController.text =
-                          DateFormat(S.current.dateFormat).format(expDate);
+                      // ignore: avoid_print
+                      print(e);
                     }
+                    dateController.text = DateFormat(S.current.dateFormat)
+                        .format(ref.watch(dialogDateProvider));
                   },
                   child: Text(S.current.dialogConfirm),
                 );

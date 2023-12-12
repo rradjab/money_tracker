@@ -150,10 +150,10 @@ class S {
     );
   }
 
-  /// `There are no expenses for specified {date}`
+  /// `There are no information for specified {date}`
   String spendingNotExists(Object date) {
     return Intl.message(
-      'There are no expenses for specified $date',
+      'There are no information for specified $date',
       name: 'spendingNotExists',
       desc: '',
       args: [date],
@@ -201,10 +201,10 @@ class S {
   }
 
   /// `Add expense`
-  String get addSpend {
+  String get dialogAddSpend {
     return Intl.message(
       'Add expense',
-      name: 'addSpend',
+      name: 'dialogAddSpend',
       desc: '',
       args: [],
     );
@@ -390,21 +390,21 @@ class S {
     );
   }
 
-  /// `Specify consumption`
-  String get dialogSpecifyCons {
+  /// `Specify amount`
+  String get dialogSpecifySum {
     return Intl.message(
-      'Specify consumption',
-      name: 'dialogSpecifyCons',
+      'Specify amount',
+      name: 'dialogSpecifySum',
       desc: '',
       args: [],
     );
   }
 
-  /// `Consumption`
-  String get dialogSpend {
+  /// `Amount`
+  String get dialogAmount {
     return Intl.message(
-      'Consumption',
-      name: 'dialogSpend',
+      'Amount',
+      name: 'dialogAmount',
       desc: '',
       args: [],
     );
@@ -450,11 +450,11 @@ class S {
     );
   }
 
-  /// `Specify name`
-  String get dialogSpecifyCategoryName {
+  /// `Name`
+  String get dialogName {
     return Intl.message(
-      'Specify name',
-      name: 'dialogSpecifyCategoryName',
+      'Name',
+      name: 'dialogName',
       desc: '',
       args: [],
     );
@@ -530,13 +530,93 @@ class S {
     );
   }
 
-  /// `Доходы`
+  /// `Profits`
   String get homeProfits {
     return Intl.message(
-      'Доходы',
+      'Profits',
       name: 'homeProfits',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Add plan`
+  String get dialogAddPlan {
+    return Intl.message(
+      'Add plan',
+      name: 'dialogAddPlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already implemented?`
+  String get dialogIsRealised {
+    return Intl.message(
+      'Already implemented?',
+      name: 'dialogIsRealised',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Specify category`
+  String get dialogSpecifyCategory {
+    return Intl.message(
+      'Specify category',
+      name: 'dialogSpecifyCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Category`
+  String get dialogCategory {
+    return Intl.message(
+      'Category',
+      name: 'dialogCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Новая категория`
+  String get dialogNewCategory {
+    return Intl.message(
+      'Новая категория',
+      name: 'dialogNewCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Остаток`
+  String get dialogRemainder {
+    return Intl.message(
+      'Остаток',
+      name: 'dialogRemainder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Добавить доход`
+  String get dialogAddProfit {
+    return Intl.message(
+      'Добавить доход',
+      name: 'dialogAddProfit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Balance {sum}`
+  String balanceSum(Object sum) {
+    return Intl.message(
+      'Balance $sum',
+      name: 'balanceSum',
+      desc: '',
+      args: [sum],
     );
   }
 }

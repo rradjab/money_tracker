@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FireStorePlansService extends StateNotifier<String> {
-  FireStorePlansService() : super('');
+class PlansService extends StateNotifier<String> {
+  PlansService() : super('');
 
   final user = FirebaseAuth.instance.currentUser;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -36,6 +36,23 @@ class FireStorePlansService extends StateNotifier<String> {
           .doc(planId);
 
       await documentReference.delete();
+    } catch (e) {
+      // ignore: avoid_print
+      print('----$e');
+    }
+  }
+
+  void updatePlan(String planId, double cost) async {
+    try {
+      DocumentReference documentReference = firestore
+          .collection('users')
+          .doc(user!.uid)
+          .collection('plans')
+          .doc(planId);
+
+      await documentReference.update({
+        "cost": cost,
+      });
     } catch (e) {
       // ignore: avoid_print
       print('----$e');

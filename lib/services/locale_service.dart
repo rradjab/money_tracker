@@ -1,6 +1,6 @@
 import 'dart:ui';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/generated/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/providers/providers.dart';
 
 class LocaleNotifier extends StateNotifier<String> {

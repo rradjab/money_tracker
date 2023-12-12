@@ -20,13 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'az';
 
-  static String m0(date) => "Qeyd olunan ${date} ərzində istehlak yoxdur";
+  static String m0(sum) => "Balans ${sum}";
 
-  static String m1(total) => "Cəmi ${total}";
+  static String m1(date) =>
+      "Qeyd olunan ${date} ərzində heç bir məlumat yoxdur";
+
+  static String m2(total) => "Cəmi ${total}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "addSpend": MessageLookupByLibrary.simpleMessage("İstehlak əlavə et"),
         "authAccountExists":
             MessageLookupByLibrary.simpleMessage("Qeydiyyatdan keçmisiniz? "),
         "authAccountNotExists":
@@ -40,6 +42,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "authSubtitle": MessageLookupByLibrary.simpleMessage(
             "Sizin istehlak tarixçəsi hər zaman əlinizin altıdadır"),
         "authTitle": MessageLookupByLibrary.simpleMessage("İstehlak tarixçəsi"),
+        "balanceSum": m0,
         "confirmDelete":
             MessageLookupByLibrary.simpleMessage("Əməliyyatı təsdiqləyin"),
         "dateFormat": MessageLookupByLibrary.simpleMessage("dd/MM/yyyy"),
@@ -48,6 +51,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogAdd": MessageLookupByLibrary.simpleMessage("Əlavə etmək"),
         "dialogAddCategory":
             MessageLookupByLibrary.simpleMessage("Kateqoriyanı əlavə edin"),
+        "dialogAddPlan":
+            MessageLookupByLibrary.simpleMessage("Plan əlavə etmək"),
+        "dialogAddProfit":
+            MessageLookupByLibrary.simpleMessage("Добавить доход"),
+        "dialogAddSpend":
+            MessageLookupByLibrary.simpleMessage("İstehlak əlavə et"),
+        "dialogAmount": MessageLookupByLibrary.simpleMessage("Məbləğ"),
+        "dialogCategory": MessageLookupByLibrary.simpleMessage("Kateqoriya"),
         "dialogConfirm": MessageLookupByLibrary.simpleMessage("Təsdiqləmək"),
         "dialogDate": MessageLookupByLibrary.simpleMessage("Tarix"),
         "dialogDeleteAnswer":
@@ -55,17 +66,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogDiscard": MessageLookupByLibrary.simpleMessage("İmtina"),
         "dialogIncorrectDate":
             MessageLookupByLibrary.simpleMessage("Yalnış tarix"),
+        "dialogIsRealised":
+            MessageLookupByLibrary.simpleMessage("Artıq həyata keçirilib?"),
+        "dialogName": MessageLookupByLibrary.simpleMessage("Ad"),
+        "dialogNewCategory":
+            MessageLookupByLibrary.simpleMessage("Новая категория"),
+        "dialogRemainder": MessageLookupByLibrary.simpleMessage("Остаток"),
         "dialogSelectDate":
             MessageLookupByLibrary.simpleMessage("Tarixi seçin"),
-        "dialogSpecifyCategoryName":
-            MessageLookupByLibrary.simpleMessage("Adı qeyd edin"),
+        "dialogSpecifyCategory":
+            MessageLookupByLibrary.simpleMessage("Kateqoriyanı seçin"),
         "dialogSpecifyColor":
             MessageLookupByLibrary.simpleMessage("Rəngi qeyd edin"),
-        "dialogSpecifyCons":
-            MessageLookupByLibrary.simpleMessage("İstehlakı qeyd edin"),
+        "dialogSpecifySum":
+            MessageLookupByLibrary.simpleMessage("Məbləği qeyd edin"),
         "dialogSpecifyText":
             MessageLookupByLibrary.simpleMessage("Mətni qeyd edin"),
-        "dialogSpend": MessageLookupByLibrary.simpleMessage("İstehlak"),
         "dialogWrongAmount":
             MessageLookupByLibrary.simpleMessage("Yalnış məbləğ"),
         "dialogWrongColor": MessageLookupByLibrary.simpleMessage("Yalnış rəng"),
@@ -83,7 +99,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Yalnış parol"),
         "homePlans": MessageLookupByLibrary.simpleMessage("Planlar"),
         "homeProfile": MessageLookupByLibrary.simpleMessage("Profil"),
-        "homeProfits": MessageLookupByLibrary.simpleMessage("Доходы"),
+        "homeProfits": MessageLookupByLibrary.simpleMessage("Gəlirlər"),
         "homeSpends": MessageLookupByLibrary.simpleMessage("İstehlaklar"),
         "language": MessageLookupByLibrary.simpleMessage("Dil"),
         "languageList": MessageLookupByLibrary.simpleMessage(
@@ -91,9 +107,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "logoutButton": MessageLookupByLibrary.simpleMessage("Çıxış"),
         "profileAppbarTitle": MessageLookupByLibrary.simpleMessage("Profil"),
         "profileSaveText": MessageLookupByLibrary.simpleMessage("Сохранить"),
-        "spendingNotExists": m0,
+        "spendingNotExists": m1,
         "spendsDateFormat":
-            MessageLookupByLibrary.simpleMessage("dd MMMM yyyy / kk:mm"),
-        "totalSpendsN": m1
+            MessageLookupByLibrary.simpleMessage("dd MMMM yyyy / HH:mm"),
+        "totalSpendsN": m2
       };
 }

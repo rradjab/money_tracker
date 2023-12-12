@@ -1,56 +1,72 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:money_tracker/dialogs/spend_date_dialog.dart';
+import 'package:flutter/material.dart';
 import 'package:money_tracker/generated/l10n.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/providers/plans/providers.dart';
+import 'package:money_tracker/providers/profits/providers.dart';
 import 'package:money_tracker/providers/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:money_tracker/dialogs/item_date_dialog.dart';
+import 'package:money_tracker/providers/spends/providers.dart';
 
-void showPlanAddDialog(BuildContext context) async {
+void showItemAddDialog(BuildContext context, String categoryId,
+    [bool isProfit = false]) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return const AlertDialog(
-        shape: RoundedRectangleBorder(
+      return AlertDialog(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(22.0)),
         ),
         actionsOverflowButtonSpacing: 10.0,
-        content: AddPlanWidget(),
+        content: AddItemWidget(
+          categoryId: categoryId,
+          isProfit: isProfit,
+        ),
       );
     },
   );
 }
 
-class AddPlanWidget extends ConsumerStatefulWidget {
-  const AddPlanWidget({super.key});
+class AddItemWidget extends ConsumerStatefulWidget {
+  final String categoryId;
+  final bool isProfit;
+  const AddItemWidget(
+      {super.key, required this.categoryId, required this.isProfit});
 
   @override
-  ConsumerState<AddPlanWidget> createState() => _AddPlanWidgetState();
+  ConsumerState<AddItemWidget> createState() => _AddItemWidgetState();
 }
 
-class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
+class _AddItemWidgetState extends ConsumerState<AddItemWidget> {
   final nameController = TextEditingController();
   final costController = TextEditingController();
-  String? nameHelper;
+  String caption = '';
   String? costHelper;
 
   @override
   void initState() {
     super.initState();
-    nameHelper = S.current.dialogSpecifyText;
-    costHelper = S.current.dialogSpecifyCons;
+    costHelper = S.current.dialogSpecifySum;
+    if (widget.categoryId == '') {
+      caption = S.current.dialogAddPlan;
+    } else if (widget.isProfit) {
+      caption = S.current.dialogAddProfit;
+    } else {
+      caption = S.current.dialogAddSpend;
+    }
   }
 
   @override
   void dispose() {
+    nameController.dispose();
     costController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final expDate = ref.watch(exploreDateProvider);
-    final spendDate = ref.watch(spendDateProvider);
+    final dialogDate = ref.watch(dialogDateProvider);
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -60,20 +76,14 @@ class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(S.current.addSpend),
+                Text(caption),
                 InkWell(
                   onTap: () async {
-                    if (spendDate == null) {
-                      ref
-                          .read(spendDateProvider.notifier)
-                          .update((state) => expDate);
-                    }
-                    await showSpendDateDialog(context, spendDate ?? expDate);
+                    await showItemDateDialog(context, widget.categoryId == '');
                     setState(() {});
                   },
                   child: Text(
-                    DateFormat(S.current.dateFormat)
-                        .format(spendDate ?? expDate),
+                    DateFormat(S.current.dateFormat).format(dialogDate),
                     style: const TextStyle(fontSize: 14.0),
                   ),
                 ),
@@ -85,18 +95,8 @@ class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
                 controller: nameController,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  label: Text(S.current.dialogSpend),
-                  helperText: nameHelper,
-                  helperStyle: TextStyle(
-                    color: nameHelper == null ? Colors.black : Colors.red,
-                  ),
+                  label: Text(S.current.dialogName),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    nameHelper =
-                        value.isEmpty ? S.current.dialogSpecifyText : null;
-                  });
-                },
               ),
             ),
             Padding(
@@ -106,7 +106,7 @@ class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  label: Text(S.current.dialogSpend),
+                  label: Text(S.current.dialogAmount),
                   helperText: costHelper,
                   helperStyle: TextStyle(
                     color: costHelper == null ? Colors.black : Colors.red,
@@ -115,7 +115,7 @@ class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
                 onChanged: (value) {
                   setState(() {
                     costHelper =
-                        value.isEmpty ? S.current.dialogSpecifyText : null;
+                        value.isEmpty ? S.current.dialogSpecifySum : null;
                   });
                 },
               ),
@@ -128,12 +128,31 @@ class _AddPlanWidgetState extends ConsumerState<AddPlanWidget> {
               onPressed: () {
                 final double? cost = double.tryParse(costController.text);
                 if (cost != null && cost > 0) {
-                  ref.read(firebasePlansControl.notifier).addPlan(
-                      nameController.text,
-                      costController.text,
-                      Timestamp.fromDate(spendDate!.copyWith(
-                          hour: DateTime.now().hour,
-                          minute: DateTime.now().minute)));
+                  if (widget.categoryId == '') {
+                    ref.read(firebasePlansControl.notifier).addPlan(
+                        nameController.text,
+                        costController.text,
+                        Timestamp.fromDate(dialogDate.copyWith(
+                            hour: DateTime.now().hour,
+                            minute: DateTime.now().minute)));
+                  } else {
+                    widget.isProfit
+                        ? ref.read(firebaseProfitsControl.notifier).addItem(
+                            widget.categoryId,
+                            nameController.text,
+                            costController.text,
+                            Timestamp.fromDate(dialogDate.copyWith(
+                                hour: DateTime.now().hour,
+                                minute: DateTime.now().minute)))
+                        : ref.read(firebaseSpendsControl.notifier).addItem(
+                            widget.categoryId,
+                            nameController.text,
+                            costController.text,
+                            Timestamp.fromDate(dialogDate.copyWith(
+                                hour: DateTime.now().hour,
+                                minute: DateTime.now().minute)));
+                  }
+
                   Navigator.of(context).pop(true);
                 } else {
                   setState(() {

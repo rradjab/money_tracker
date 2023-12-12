@@ -1,11 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/generated/l10n.dart';
-import 'package:money_tracker/providers/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:money_tracker/providers/profits/providers.dart';
+import 'package:money_tracker/providers/spends/providers.dart';
 
-void showCategoryAddDialog(BuildContext context) async {
+void showCategoryAddDialog(BuildContext context,
+    [bool isProfit = false]) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -16,14 +18,17 @@ void showCategoryAddDialog(BuildContext context) async {
         actionsPadding: const EdgeInsets.all(20.0),
         actionsOverflowButtonSpacing: 10.0,
         title: Center(child: Text(S.current.dialogAddCategory)),
-        content: const AddElementWidget(),
+        content: AddElementWidget(
+          isProfit: isProfit,
+        ),
       );
     },
   );
 }
 
 class AddElementWidget extends StatefulWidget {
-  const AddElementWidget({super.key});
+  final bool isProfit;
+  const AddElementWidget({super.key, required this.isProfit});
 
   @override
   State<AddElementWidget> createState() => _AddElementWidgetState();
@@ -70,7 +75,7 @@ class _AddElementWidgetState extends State<AddElementWidget> {
               controller: nameController,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                label: Text(S.current.dialogSpecifyCategoryName),
+                label: Text(S.current.dialogName),
                 helperText: nameHelper,
                 helperStyle: TextStyle(
                   color: nameHelper == null ? Colors.black : Colors.red,
@@ -146,9 +151,11 @@ class _AddElementWidgetState extends State<AddElementWidget> {
                 ),
                 onPressed: () {
                   if (colorHelper == null && nameHelper == null) {
-                    ref
-                        .read(firebaseSpendsControl.notifier)
-                        .addCategory(nameController.text, colorController.text);
+                    widget.isProfit
+                        ? ref.read(firebaseProfitsControl.notifier).addCategory(
+                            nameController.text, colorController.text)
+                        : ref.read(firebaseSpendsControl.notifier).addCategory(
+                            nameController.text, colorController.text);
                     Navigator.of(context).pop(true);
                   }
                 },

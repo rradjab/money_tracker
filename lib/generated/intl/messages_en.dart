@@ -20,13 +20,14 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(date) => "There are no expenses for specified ${date}";
+  static String m0(sum) => "Balance ${sum}";
 
-  static String m1(total) => "Total ${total}";
+  static String m1(date) => "There are no information for specified ${date}";
+
+  static String m2(total) => "Total ${total}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "addSpend": MessageLookupByLibrary.simpleMessage("Add expense"),
         "authAccountExists":
             MessageLookupByLibrary.simpleMessage("Have an account? "),
         "authAccountNotExists":
@@ -40,6 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "authSubtitle": MessageLookupByLibrary.simpleMessage(
             "Your expense history is always at hand"),
         "authTitle": MessageLookupByLibrary.simpleMessage("Cost accounting"),
+        "balanceSum": m0,
         "confirmDelete": MessageLookupByLibrary.simpleMessage("Confirm action"),
         "dateFormat": MessageLookupByLibrary.simpleMessage("dd/MM/yyyy"),
         "dateItems": MessageLookupByLibrary.simpleMessage("Day|Month|Year|All"),
@@ -47,6 +49,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogAdd": MessageLookupByLibrary.simpleMessage("Add"),
         "dialogAddCategory":
             MessageLookupByLibrary.simpleMessage("Add category"),
+        "dialogAddPlan": MessageLookupByLibrary.simpleMessage("Add plan"),
+        "dialogAddProfit":
+            MessageLookupByLibrary.simpleMessage("Добавить доход"),
+        "dialogAddSpend": MessageLookupByLibrary.simpleMessage("Add expense"),
+        "dialogAmount": MessageLookupByLibrary.simpleMessage("Amount"),
+        "dialogCategory": MessageLookupByLibrary.simpleMessage("Category"),
         "dialogConfirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialogDate": MessageLookupByLibrary.simpleMessage("Date"),
         "dialogDeleteAnswer": MessageLookupByLibrary.simpleMessage(
@@ -54,16 +62,21 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogDiscard": MessageLookupByLibrary.simpleMessage("Discard"),
         "dialogIncorrectDate":
             MessageLookupByLibrary.simpleMessage("Wrong date"),
+        "dialogIsRealised":
+            MessageLookupByLibrary.simpleMessage("Already implemented?"),
+        "dialogName": MessageLookupByLibrary.simpleMessage("Name"),
+        "dialogNewCategory":
+            MessageLookupByLibrary.simpleMessage("Новая категория"),
+        "dialogRemainder": MessageLookupByLibrary.simpleMessage("Остаток"),
         "dialogSelectDate": MessageLookupByLibrary.simpleMessage("Select date"),
-        "dialogSpecifyCategoryName":
-            MessageLookupByLibrary.simpleMessage("Specify name"),
+        "dialogSpecifyCategory":
+            MessageLookupByLibrary.simpleMessage("Specify category"),
         "dialogSpecifyColor":
             MessageLookupByLibrary.simpleMessage("Specify color"),
-        "dialogSpecifyCons":
-            MessageLookupByLibrary.simpleMessage("Specify consumption"),
+        "dialogSpecifySum":
+            MessageLookupByLibrary.simpleMessage("Specify amount"),
         "dialogSpecifyText":
             MessageLookupByLibrary.simpleMessage("Specify text"),
-        "dialogSpend": MessageLookupByLibrary.simpleMessage("Consumption"),
         "dialogWrongAmount":
             MessageLookupByLibrary.simpleMessage("Wrong amount"),
         "dialogWrongColor": MessageLookupByLibrary.simpleMessage("Wrong color"),
@@ -80,7 +93,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Wrong password"),
         "homePlans": MessageLookupByLibrary.simpleMessage("Plans"),
         "homeProfile": MessageLookupByLibrary.simpleMessage("Profile"),
-        "homeProfits": MessageLookupByLibrary.simpleMessage("Доходы"),
+        "homeProfits": MessageLookupByLibrary.simpleMessage("Profits"),
         "homeSpends": MessageLookupByLibrary.simpleMessage("Expenses"),
         "language": MessageLookupByLibrary.simpleMessage("Language"),
         "languageList": MessageLookupByLibrary.simpleMessage(
@@ -88,9 +101,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "logoutButton": MessageLookupByLibrary.simpleMessage("Sign out"),
         "profileAppbarTitle": MessageLookupByLibrary.simpleMessage("Profile"),
         "profileSaveText": MessageLookupByLibrary.simpleMessage("Save"),
-        "spendingNotExists": m0,
+        "spendingNotExists": m1,
         "spendsDateFormat":
             MessageLookupByLibrary.simpleMessage("dd MMMM yyyy / hh:mm"),
-        "totalSpendsN": m1
+        "totalSpendsN": m2
       };
 }

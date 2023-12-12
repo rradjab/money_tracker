@@ -4,22 +4,23 @@ import 'package:money_tracker/generated/l10n.dart';
 import 'package:money_tracker/models/chart_model.dart';
 import 'package:money_tracker/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/views/spending_view.dart';
+import 'package:money_tracker/constants/date_format.dart';
 import 'package:money_tracker/dialogs/confirm_dialog.dart';
-import 'package:money_tracker/dialogs/add_spend_dialog.dart';
-import 'package:money_tracker/dialogs/add_category_dialog.dart';
-import 'package:money_tracker/services/categories_service.dart';
+import 'package:money_tracker/dialogs/item_add_dialog.dart';
+import 'package:money_tracker/views/profits/profits_view.dart';
+import 'package:money_tracker/providers/spends/providers.dart';
+import 'package:money_tracker/providers/profits/providers.dart';
+import 'package:money_tracker/dialogs/category_add_dialog.dart';
 import 'package:money_tracker/widgets/circular_chart_widget.dart';
 import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 
-class CategoryWidget extends ConsumerWidget {
-  const CategoryWidget({super.key});
+class ProfitWidget extends ConsumerWidget {
+  const ProfitWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expDate = ref.watch(exploreDateProvider);
-    final dateType = ref.watch(datePickerProvider);
-    final List<String> dateFormat = ['dd M yyyy', 'M yyyy', 'yyyy', ''];
+    final expDate = ref.watch(spendsDateProvider);
+    final dateType = ref.watch(spendsDatePickerProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -38,10 +39,12 @@ class CategoryWidget extends ConsumerWidget {
                   for (int i = 0; i < dateFormat.length; i++)
                     DropdownMenuItem(
                         value: dateFormat[i],
-                        child: Text(S.of(context).dateItems.split('|')[i]))
+                        child: Text(S.current.dateItems.split('|')[i]))
                 ],
                 onChanged: (v) {
-                  ref.read(datePickerProvider.notifier).update((state) => v!);
+                  ref
+                      .read(spendsDatePickerProvider.notifier)
+                      .update((state) => v!);
                 },
               ),
             ),
@@ -65,17 +68,17 @@ class CategoryWidget extends ConsumerWidget {
                         !expDate.isAtSameMomentAs(selectedDate) &&
                         !selectedDate.isAfter(DateTime.now()) &&
                         !selectedDate.isBefore(DateTime(1900))) {
-                      if (dateType != 'dd M yyyy') {
-                        ref.read(exploreDateProvider.notifier).update((state) =>
+                      if (dateType != dateFormat[0]) {
+                        ref.read(spendsDateProvider.notifier).update((state) =>
                             selectedDate.copyWith(day: DateTime.now().day));
-                        ref.read(spendDateProvider.notifier).update((state) =>
+                        ref.read(dialogDateProvider.notifier).update((state) =>
                             selectedDate.copyWith(day: DateTime.now().day));
                       } else {
                         ref
-                            .read(exploreDateProvider.notifier)
+                            .read(spendsDateProvider.notifier)
                             .update((state) => selectedDate);
                         ref
-                            .read(spendDateProvider.notifier)
+                            .read(dialogDateProvider.notifier)
                             .update((state) => selectedDate);
                       }
                     }
@@ -89,7 +92,7 @@ class CategoryWidget extends ConsumerWidget {
             ),
             Expanded(
               child: IconButton(
-                onPressed: () => showCategoryAddDialog(context),
+                onPressed: () => showCategoryAddDialog(context, true),
                 icon: const Icon(Icons.add),
                 alignment: Alignment.centerRight,
               ),
@@ -97,7 +100,7 @@ class CategoryWidget extends ConsumerWidget {
           ],
         ),
       ),
-      body: ref.watch(firebaseCategories).when(
+      body: ref.watch(profitsCategoriesStreamProvider).when(
             data: ((data) {
               final dataSorted = data
                 ..sort((a, b) => b.total!.compareTo(a.total!));
@@ -112,7 +115,19 @@ class CategoryWidget extends ConsumerWidget {
                           .map((e) => ChartModel(e.name ?? 'unnamed',
                               e.total ?? 0, e.color ?? 'ffffff'))
                           .toList(),
-                      date: expDate,
+                      dateType: dateType,
+                      spends: ref.watch(spendsCategoriesStreamProvider).value ==
+                              null
+                          ? 0
+                          : ref
+                                  .watch(spendsCategoriesStreamProvider)
+                                  .value
+                                  ?.fold(
+                                      0,
+                                      (previousValue, element) =>
+                                          (previousValue ?? 0) +
+                                          (element.total ?? 0)) ??
+                              0,
                     ),
                   ),
                   Expanded(
@@ -131,12 +146,16 @@ class CategoryWidget extends ConsumerWidget {
                             onLongPress: () async {
                               if (await confirmDismiss(context)) {
                                 ref
-                                    .read(firebaseSpendsControl.notifier)
+                                    .read(firebaseProfitsControl.notifier)
                                     .deleteCategory(dataSorted[index].id!);
                               }
                             },
-                            onTap: () => showSpendAddDialog(
-                                context, dataSorted[index].id!),
+                            onTap: () {
+                              ref.read(dialogDateProvider.notifier).update(
+                                  (state) => ref.watch(spendsDateProvider));
+                              showItemAddDialog(
+                                  context, dataSorted[index].id!, true);
+                            },
                             title: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
@@ -150,12 +169,11 @@ class CategoryWidget extends ConsumerWidget {
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
                                 dataSorted[index].total! <= 0
-                                    ? S.of(context).addSpend
-                                    : S.of(context).totalSpendsN(
-                                        dataSorted[index]
-                                                .total
-                                                ?.toStringAsFixed(1) ??
-                                            '0'),
+                                    ? S.current.dialogAddProfit
+                                    : S.current.totalSpendsN(dataSorted[index]
+                                            .total
+                                            ?.toStringAsFixed(1) ??
+                                        '0'),
                                 style: const TextStyle(
                                   fontSize: 12.0,
                                   color: Colors.grey,
@@ -166,8 +184,8 @@ class CategoryWidget extends ConsumerWidget {
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SpendingItemView(
-                                    spendingModel: dataSorted[index],
+                                  builder: (context) => ProfitItemView(
+                                    categoryModel: dataSorted[index],
                                   ),
                                 ),
                               ),

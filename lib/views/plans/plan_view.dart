@@ -1,25 +1,25 @@
 import 'dart:math';
-
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:money_tracker/dialogs/to_spends_dialog.dart';
 import 'package:money_tracker/generated/l10n.dart';
 import 'package:money_tracker/models/chart_model.dart';
-import 'package:money_tracker/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/services/plans_service.dart';
+import 'package:money_tracker/providers/providers.dart';
+import 'package:money_tracker/constants/date_format.dart';
 import 'package:money_tracker/dialogs/confirm_dialog.dart';
-import 'package:money_tracker/dialogs/add_plan_dialog.dart';
-import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
+import 'package:money_tracker/dialogs/item_add_dialog.dart';
+import 'package:money_tracker/providers/plans/providers.dart';
 import 'package:money_tracker/widgets/circular_chart_widget.dart';
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 
 class PlanWidget extends ConsumerWidget {
   const PlanWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expDate = ref.watch(exploreDateProvider);
-    final dateType = ref.watch(datePickerProvider);
-    final List<String> dateFormat = ['dd M yyyy', 'M yyyy', 'yyyy', ''];
+    final expDate = ref.watch(plansExpDateProvider);
+    final dateType = ref.watch(plansDatePickerProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -38,10 +38,12 @@ class PlanWidget extends ConsumerWidget {
                   for (int i = 0; i < dateFormat.length; i++)
                     DropdownMenuItem(
                         value: dateFormat[i],
-                        child: Text(S.of(context).dateItems.split('|')[i]))
+                        child: Text(S.current.dateItems.split('|')[i]))
                 ],
                 onChanged: (v) {
-                  ref.read(datePickerProvider.notifier).update((state) => v!);
+                  ref
+                      .read(plansDatePickerProvider.notifier)
+                      .update((state) => v!);
                 },
               ),
             ),
@@ -54,30 +56,20 @@ class PlanWidget extends ConsumerWidget {
                         await DatePicker.showSimpleDatePicker(
                       context,
                       // initialDate: DateTime(2020),
-                      initialDate: expDate,
-                      firstDate: DateTime(1900, 12, 10),
-                      lastDate: DateTime.now(),
+                      initialDate: expDate.copyWith(),
+                      firstDate: DateTime.now(),
                       dateFormat: dateType,
                       locale: DateTimePickerLocale.en_us,
                       looping: true,
                     );
+
                     if (selectedDate != null &&
-                        !expDate.isAtSameMomentAs(selectedDate) &&
-                        !selectedDate.isAfter(DateTime.now()) &&
-                        !selectedDate.isBefore(DateTime(1900))) {
-                      if (dateType != 'dd M yyyy') {
-                        ref.read(exploreDateProvider.notifier).update((state) =>
-                            selectedDate.copyWith(day: DateTime.now().day));
-                        ref.read(spendDateProvider.notifier).update((state) =>
-                            selectedDate.copyWith(day: DateTime.now().day));
-                      } else {
-                        ref
-                            .read(exploreDateProvider.notifier)
-                            .update((state) => selectedDate);
-                        ref
-                            .read(spendDateProvider.notifier)
-                            .update((state) => selectedDate);
-                      }
+                        (selectedDate.isAfter(DateTime.now()) ||
+                            expDate.day == selectedDate.day)) {
+                      ref.read(plansExpDateProvider.notifier).update((state) =>
+                          dateType != dateFormat[0]
+                              ? selectedDate.copyWith(day: DateTime.now().day)
+                              : selectedDate);
                     }
                   }
                 },
@@ -89,7 +81,19 @@ class PlanWidget extends ConsumerWidget {
             ),
             Expanded(
               child: IconButton(
-                onPressed: () => showPlanAddDialog(context),
+                onPressed: () {
+                  final dialogDate = ref.watch(plansExpDateProvider);
+                  final nDate = DateTime.now();
+                  final dDate = DateTime(
+                      dialogDate.year, dialogDate.month, dialogDate.day);
+                  final tDate = DateTime(nDate.year, nDate.month, nDate.day);
+
+                  ref.read(dialogDateProvider.notifier).update((state) =>
+                      dDate == tDate
+                          ? dialogDate.copyWith(day: dialogDate.day + 1)
+                          : dialogDate);
+                  showItemAddDialog(context, '');
+                },
                 icon: const Icon(Icons.add),
                 alignment: Alignment.centerRight,
               ),
@@ -107,14 +111,15 @@ class PlanWidget extends ConsumerWidget {
                       data: data
                           .where((e) => (e.cost != null && e.cost! > 0))
                           .map((e) => ChartModel(
-                              e.name ?? 'unnamed',
+                              e.name ?? '',
                               e.cost ?? 0,
-                              Color(Random().nextInt(0xffffffff))
-                                  .withAlpha(0xff)
-                                  .toString()
-                                  .substring(8, 16)))
+                              e.color ??
+                                  Color(Random().nextInt(0xffffffff))
+                                      .withAlpha(0xff)
+                                      .toString()
+                                      .substring(8, 16)))
                           .toList(),
-                      date: expDate,
+                      dateType: dateType,
                     ),
                   ),
                   Expanded(
@@ -124,12 +129,18 @@ class PlanWidget extends ConsumerWidget {
                       child: ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) => Card(
+                          //color: Color(int.parse('0x${data[index].color}')),
                           margin: const EdgeInsets.all(20),
                           elevation: 10,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: ListTile(
+                            onTap: () {
+                              ref.read(dialogDateProvider.notifier).update(
+                                  (state) => ref.watch(plansExpDateProvider));
+                              showToSpendsAddDialog(context, data[index]);
+                            },
                             onLongPress: () async {
                               if (await confirmDismiss(context)) {
                                 ref
@@ -140,7 +151,7 @@ class PlanWidget extends ConsumerWidget {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
-                                data[index].name!,
+                                data[index].name ?? '',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -151,7 +162,7 @@ class PlanWidget extends ConsumerWidget {
                               child: Text(
                                 data[index].added == null
                                     ? '00 00 0000 / 00:00'
-                                    : DateFormat(S.of(context).spendsDateFormat)
+                                    : DateFormat(S.current.dateFormat)
                                         .format(data[index].added!.toDate()),
                                 style: const TextStyle(
                                   fontSize: 12.0,

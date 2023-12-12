@@ -4,22 +4,22 @@ import 'package:money_tracker/generated/l10n.dart';
 import 'package:money_tracker/models/chart_model.dart';
 import 'package:money_tracker/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/views/spending_view.dart';
+import 'package:money_tracker/constants/date_format.dart';
 import 'package:money_tracker/dialogs/confirm_dialog.dart';
-import 'package:money_tracker/dialogs/add_spend_dialog.dart';
-import 'package:money_tracker/dialogs/add_category_dialog.dart';
-import 'package:money_tracker/services/categories_service.dart';
+import 'package:money_tracker/dialogs/item_add_dialog.dart';
+import 'package:money_tracker/providers/spends/providers.dart';
+import 'package:money_tracker/views/spends/spending_view.dart';
+import 'package:money_tracker/dialogs/category_add_dialog.dart';
 import 'package:money_tracker/widgets/circular_chart_widget.dart';
 import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 
-class ProfitWidget extends ConsumerWidget {
-  const ProfitWidget({super.key});
+class CategoryWidget extends ConsumerWidget {
+  const CategoryWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expDate = ref.watch(exploreDateProvider);
-    final dateType = ref.watch(datePickerProvider);
-    final List<String> dateFormat = ['dd M yyyy', 'M yyyy', 'yyyy', ''];
+    final expDate = ref.watch(spendsDateProvider);
+    final dateType = ref.watch(spendsDatePickerProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -38,10 +38,12 @@ class ProfitWidget extends ConsumerWidget {
                   for (int i = 0; i < dateFormat.length; i++)
                     DropdownMenuItem(
                         value: dateFormat[i],
-                        child: Text(S.of(context).dateItems.split('|')[i]))
+                        child: Text(S.current.dateItems.split('|')[i]))
                 ],
                 onChanged: (v) {
-                  ref.read(datePickerProvider.notifier).update((state) => v!);
+                  ref
+                      .read(spendsDatePickerProvider.notifier)
+                      .update((state) => v!);
                 },
               ),
             ),
@@ -65,17 +67,17 @@ class ProfitWidget extends ConsumerWidget {
                         !expDate.isAtSameMomentAs(selectedDate) &&
                         !selectedDate.isAfter(DateTime.now()) &&
                         !selectedDate.isBefore(DateTime(1900))) {
-                      if (dateType != 'dd M yyyy') {
-                        ref.read(exploreDateProvider.notifier).update((state) =>
+                      if (dateType != dateFormat[0]) {
+                        ref.read(spendsDateProvider.notifier).update((state) =>
                             selectedDate.copyWith(day: DateTime.now().day));
-                        ref.read(spendDateProvider.notifier).update((state) =>
+                        ref.read(dialogDateProvider.notifier).update((state) =>
                             selectedDate.copyWith(day: DateTime.now().day));
                       } else {
                         ref
-                            .read(exploreDateProvider.notifier)
+                            .read(spendsDateProvider.notifier)
                             .update((state) => selectedDate);
                         ref
-                            .read(spendDateProvider.notifier)
+                            .read(dialogDateProvider.notifier)
                             .update((state) => selectedDate);
                       }
                     }
@@ -97,7 +99,7 @@ class ProfitWidget extends ConsumerWidget {
           ],
         ),
       ),
-      body: ref.watch(firebaseCategories).when(
+      body: ref.watch(spendsCategoriesStreamProvider).when(
             data: ((data) {
               final dataSorted = data
                 ..sort((a, b) => b.total!.compareTo(a.total!));
@@ -112,7 +114,7 @@ class ProfitWidget extends ConsumerWidget {
                           .map((e) => ChartModel(e.name ?? 'unnamed',
                               e.total ?? 0, e.color ?? 'ffffff'))
                           .toList(),
-                      date: expDate,
+                      dateType: dateType,
                     ),
                   ),
                   Expanded(
@@ -135,8 +137,11 @@ class ProfitWidget extends ConsumerWidget {
                                     .deleteCategory(dataSorted[index].id!);
                               }
                             },
-                            onTap: () => showSpendAddDialog(
-                                context, dataSorted[index].id!),
+                            onTap: () {
+                              ref.read(dialogDateProvider.notifier).update(
+                                  (state) => ref.watch(spendsDateProvider));
+                              showItemAddDialog(context, dataSorted[index].id!);
+                            },
                             title: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
@@ -150,12 +155,11 @@ class ProfitWidget extends ConsumerWidget {
                               padding: const EdgeInsets.only(left: 18.0),
                               child: Text(
                                 dataSorted[index].total! <= 0
-                                    ? S.of(context).addSpend
-                                    : S.of(context).totalSpendsN(
-                                        dataSorted[index]
-                                                .total
-                                                ?.toStringAsFixed(1) ??
-                                            '0'),
+                                    ? S.current.dialogAddSpend
+                                    : S.current.totalSpendsN(dataSorted[index]
+                                            .total
+                                            ?.toStringAsFixed(1) ??
+                                        '0'),
                                 style: const TextStyle(
                                   fontSize: 12.0,
                                   color: Colors.grey,
@@ -167,7 +171,8 @@ class ProfitWidget extends ConsumerWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => SpendingItemView(
-                                    spendingModel: dataSorted[index],
+                                    categoryModel: dataSorted[index],
+                                    streamProvider: spendsStreamProvider,
                                   ),
                                 ),
                               ),

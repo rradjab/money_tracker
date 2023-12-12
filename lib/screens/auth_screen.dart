@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/generated/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/providers/providers.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -44,7 +44,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               fit: BoxFit.contain),
                         ),
                         Text(
-                          S.of(context).authTitle,
+                          S.current.authTitle,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 28.0),
                         ),
@@ -53,7 +53,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: SizedBox(
                             width: 200,
                             child: Text(
-                              S.of(context).authSubtitle,
+                              S.current.authSubtitle,
                               style: const TextStyle(fontSize: 12.0),
                               textAlign: TextAlign.center,
                             ),
@@ -71,13 +71,13 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextField(
                         controller: userNameController,
                         decoration:
-                            InputDecoration(labelText: S.of(context).authEmail),
+                            InputDecoration(labelText: S.current.authEmail),
                       ),
                       TextField(
                         controller: passwordController,
                         obscureText: true,
-                        decoration: InputDecoration(
-                            labelText: S.of(context).authPassword),
+                        decoration:
+                            InputDecoration(labelText: S.current.authPassword),
                       ),
                     ],
                   ),
@@ -123,8 +123,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     )
                                   : Text(
                                       isRegistered
-                                          ? S.of(context).authLogin
-                                          : S.of(context).authRegister,
+                                          ? S.current.authLogin
+                                          : S.current.authRegister,
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),
@@ -137,8 +137,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               children: [
                                 Text(
                                   isRegistered
-                                      ? S.of(context).authAccountNotExists
-                                      : S.of(context).authAccountExists,
+                                      ? S.current.authAccountNotExists
+                                      : S.current.authAccountExists,
                                   style: const TextStyle(fontSize: 17.0),
                                 ),
                                 InkWell(
@@ -149,8 +149,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   },
                                   child: Text(
                                     isRegistered
-                                        ? S.of(context).authSignUp
-                                        : S.of(context).authSignIn,
+                                        ? S.current.authSignUp
+                                        : S.current.authSignIn,
                                     style: const TextStyle(
                                         fontSize: 17.0, color: Colors.purple),
                                   ),

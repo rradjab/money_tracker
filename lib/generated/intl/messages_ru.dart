@@ -20,13 +20,14 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
-  static String m0(date) => "За указанный ${date} нет расходов";
+  static String m0(sum) => "Баланс ${sum}";
 
-  static String m1(total) => "Всего ${total}";
+  static String m1(date) => "За указанный ${date} нет информации";
+
+  static String m2(total) => "Всего ${total}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "addSpend": MessageLookupByLibrary.simpleMessage("Добавить расход"),
         "authAccountExists":
             MessageLookupByLibrary.simpleMessage("Уже есть аккаунт? "),
         "authAccountNotExists":
@@ -40,6 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "authSubtitle": MessageLookupByLibrary.simpleMessage(
             "Ваша история расходов всегда под рукой"),
         "authTitle": MessageLookupByLibrary.simpleMessage("Учёт расходов"),
+        "balanceSum": m0,
         "confirmDelete":
             MessageLookupByLibrary.simpleMessage("Подтвердите действие"),
         "dateFormat": MessageLookupByLibrary.simpleMessage("dd/MM/yyyy"),
@@ -48,6 +50,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogAdd": MessageLookupByLibrary.simpleMessage("Добавить"),
         "dialogAddCategory":
             MessageLookupByLibrary.simpleMessage("Добавить категорию"),
+        "dialogAddPlan": MessageLookupByLibrary.simpleMessage("Добавить план"),
+        "dialogAddProfit":
+            MessageLookupByLibrary.simpleMessage("Добавить доход"),
+        "dialogAddSpend":
+            MessageLookupByLibrary.simpleMessage("Добавить расход"),
+        "dialogAmount": MessageLookupByLibrary.simpleMessage("Сумма"),
+        "dialogCategory": MessageLookupByLibrary.simpleMessage("Категория"),
         "dialogConfirm": MessageLookupByLibrary.simpleMessage("Подтвердить"),
         "dialogDate": MessageLookupByLibrary.simpleMessage("Дата"),
         "dialogDeleteAnswer": MessageLookupByLibrary.simpleMessage(
@@ -55,17 +64,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogDiscard": MessageLookupByLibrary.simpleMessage("Отмена"),
         "dialogIncorrectDate":
             MessageLookupByLibrary.simpleMessage("Некорректная дата"),
+        "dialogIsRealised":
+            MessageLookupByLibrary.simpleMessage("Уже реализовано?"),
+        "dialogName": MessageLookupByLibrary.simpleMessage("Название"),
+        "dialogNewCategory":
+            MessageLookupByLibrary.simpleMessage("Новая категория"),
+        "dialogRemainder": MessageLookupByLibrary.simpleMessage("Остаток"),
         "dialogSelectDate":
             MessageLookupByLibrary.simpleMessage("Выберите дату"),
-        "dialogSpecifyCategoryName":
-            MessageLookupByLibrary.simpleMessage("Укажите название"),
+        "dialogSpecifyCategory":
+            MessageLookupByLibrary.simpleMessage("Укажите категорию"),
         "dialogSpecifyColor":
             MessageLookupByLibrary.simpleMessage("Укажите цвет"),
-        "dialogSpecifyCons":
-            MessageLookupByLibrary.simpleMessage("Укажите расход"),
+        "dialogSpecifySum":
+            MessageLookupByLibrary.simpleMessage("Укажите сумму"),
         "dialogSpecifyText":
             MessageLookupByLibrary.simpleMessage("Укажите текст"),
-        "dialogSpend": MessageLookupByLibrary.simpleMessage("Расход"),
         "dialogWrongAmount":
             MessageLookupByLibrary.simpleMessage("Неправильная сумма"),
         "dialogWrongColor":
@@ -94,9 +108,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "logoutButton": MessageLookupByLibrary.simpleMessage("Выйти"),
         "profileAppbarTitle": MessageLookupByLibrary.simpleMessage("Профиль"),
         "profileSaveText": MessageLookupByLibrary.simpleMessage("Сохранить"),
-        "spendingNotExists": m0,
+        "spendingNotExists": m1,
         "spendsDateFormat":
-            MessageLookupByLibrary.simpleMessage("dd MMMM yyyy / kk:mm"),
-        "totalSpendsN": m1
+            MessageLookupByLibrary.simpleMessage("dd MMMM yyyy / HH:mm"),
+        "totalSpendsN": m2
       };
 }

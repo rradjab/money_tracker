@@ -39,32 +39,8 @@ class MyApp extends ConsumerWidget {
       supportedLocales: S.delegate.supportedLocales,
       debugShowCheckedModeBanner: false,
       home: ref.watch(authStreamProvider).when(
-            data: (User? user) {
-              final List<BottomNavigationBarItem> items = [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.credit_card),
-                  label: S.current.homeSpends,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.monetization_on),
-                  label: S.current.homeProfits,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.place_outlined),
-                  label: S.current.homePlans,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person),
-                  label: S.current.homeProfile,
-                ),
-              ];
-
-              return user != null
-                  ? HomeScreen(
-                      items: items,
-                    )
-                  : const AuthScreen();
-            },
+            data: (User? user) =>
+                user != null ? const HomeScreen() : const AuthScreen(),
             error: (error, stackTrace) => const CircularProgressIndicator(),
             loading: () =>
                 const Scaffold(body: Center(child: LinearProgressIndicator())),
